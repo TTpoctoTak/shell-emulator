@@ -1,4 +1,5 @@
 import tkinter as tk
+import os
 
 VFS_NAME = "MyVFS"
 
@@ -17,12 +18,41 @@ class ShellGUI:
         self.command_entry.bind("<Return>", self.submit_command)
         self.command_entry.focus()
 
+    def parse_command(self, command):
+        """Split user input into a command name and arguments."""
+        parts = command.split()
+        parts = [os.path.expandvars(part) for part in parts]
+        
+        command_name = parts[0]
+        arguments = parts[1:]
+
+        return command_name, arguments
+
+    def execute_command(self, command_name, arguments):
+        """Execute a parsed command."""
+        if command_name == "ls":
+            self.output.insert(tk.END, f"ls: {arguments}\n")
+        elif command_name == "cd":
+            self.output.insert(tk.END, f"cd: {arguments}\n")
+        elif command_name == "exit":
+            self.root.destroy()
+            return False
+        else:
+            self.output.insert(
+                tk.END,
+                f"Error: unknown command: {command_name}\n",
+                )
+        return True
+
     def submit_command(self, event):
         """Read a command from the input field and display it."""
         command = self.command_entry.get()
 
         if command:
             self.output.insert(tk.END, f"> {command}\n")
+            command_name, arguments = self.parse_command(command)
+            should_continue = self.execute_command(command_name, arguments)
+        if should_continue:
             self.command_entry.delete(0, tk.END)
 
 def main():
