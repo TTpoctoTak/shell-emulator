@@ -32,16 +32,32 @@ class ShellGUI:
         """Execute a parsed command."""
         if command_name == "ls":
             self.output.insert(tk.END, f"ls: {arguments}\n")
+
         elif command_name == "cd":
-            self.output.insert(tk.END, f"cd: {arguments}\n")
+            if len(arguments) != 1:
+                self.output.insert(
+                    tk.END,
+                    "Error: cd requires exactly one argument\n",
+                )
+            else:
+                self.output.insert(tk.END, f"cd: {arguments}\n")
+
         elif command_name == "exit":
-            self.root.destroy()
-            return False
+            if arguments:
+                self.output.insert(
+                    tk.END,
+                    "Error: exit does not accept arguments\n",
+                )
+            else:
+                self.root.destroy()
+                return False
+
         else:
             self.output.insert(
                 tk.END,
                 f"Error: unknown command: {command_name}\n",
-                )
+            )
+
         return True
 
     def submit_command(self, event):
